@@ -111,7 +111,7 @@ neva@Uneva:~$ vagrant ssh centralServer
  Main PID: 626 (nginx)
    CGroup: /system.slice/nginx.service
            ├─626 nginx: master process /usr/sbin/nginx
-           └─628 nginx: worker process
+           └─628 nginx: worker process 
 ```
  
 4. Пробросить 80й порт на inetRouter2 8080. Реализовано следующим образом:
