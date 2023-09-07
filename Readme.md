@@ -29,25 +29,19 @@ centralRouter             running (virtualbox)
 centralServer             running (virtualbox)
 ```
 
-Пробуем подключиться по ssh на стандартный порт к inetRouter
+Пробуем подключиться по ssh на стандартный порт к inetRouter с centralRouter
 
 ```
-neva@Uneva:~$ vagrant ssh inetRouter
-^Cneva@Uneva:~$ ^C
-neva@Uneva:~$ ^C
-```
-Подключение не открывается, значит. наши правила iptables в деле
-
-
-Подключаемся на centralRouter и пробуем выполнить port knocking через nmap в последовательности, разрешающей подключение: порты 8881, 7777, 9991
-
-
-```	
 neva@Uneva:~$ vagrant ssh centralRouter
 [vagrant@centralRouter ~]$ ssh 192.168.255.1
-
 ^C
+```
+Подключение не открывается.
 
+
+Выполняем на centralRouter port knocking через nmap в последовательности, разрешающей подключение по ssh: порты 8881, 7777, 9991
+
+```	
 [vagrant@centralRouter ~]$ ^C
 [vagrant@centralRouter ~]$ for x in 8881 7777 9991; do sudo nmap -Pn --host_timeout 100 --max-retries 0 -p $x 192.168.255.1; done
 
@@ -89,7 +83,7 @@ Warning: Permanently added '192.168.255.1' (ECDSA) to the list of known hosts.
 vagrant@192.168.255.1's password:
 [vagrant@inetRouter ~]$
 ```
-
+Подключение удалось.
 
 2. Добавить inetRouter2, который виден(маршрутизируется (host-only тип сети для виртуалки)) с хоста или форвардится порт через локалхост: реализовано в Vagrantfile:
 
@@ -121,7 +115,7 @@ neva@Uneva:~$ vagrant ssh centralServer
 ```
  
 4. Пробросить 80й порт на inetRouter2 8080. Реализовано следующим образом:
- когда мы переходим с хостовой машины на  127.0.0.1:1212, то попадаем на порт 8080 inetRouter2 eth0. По правилам маршрутизации он форвардит трафик серез centralRouter (192.168.255.3) на centralServer порт 80 (nginx). Обратно трафик возвращается таким же путём. См. схему.
+ когда мы переходим с хостовой машины на  127.0.0.1:1212, то попадаем на порт 8080 inetRouter2 eth0. По правилам маршрутизации он форвардит трафик серез centralRouter (192.168.255.3) на centralServer порт 80 (nginx). Обратно трафик возвращается таким же путём. [См. схему](https://github.com/zoyqqyoz/Otus_Kaneva_dz20/blob/master/plan.pdf).
 
 ```
 #Forward 8080 to nginx 80
@@ -129,7 +123,7 @@ sudo iptables -t nat -A PREROUTING -i eth0 -p tcp -m tcp --dport 8080 -j DNAT --
 #Back to inetRouter2
 sudo iptables -t nat -A POSTROUTING -d 192.168.0.2/32 -p tcp -m tcp --dport 80 -j SNAT --to-source 192.168.255.2
 ```
-см. скриншот
+[см. скриншот](https://github.com/zoyqqyoz/Otus_Kaneva_dz20/blob/master/nginx.JPG)
 
 5. Дефолт в инет оставить через inetRouter
 Шлюз по умолчанию прописан на inetRouter
